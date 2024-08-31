@@ -1,0 +1,36 @@
+document.getElementById('scan-job').addEventListener('click', async () => {
+    const [tab] = await chrome.tabs.query({ active: true, currentWindow: true });
+    chrome.scripting.executeScript({
+      target: { tabId: tab.id },
+      function: scanJobDescription,
+    });
+  });
+  
+  document.getElementById('apply-job').addEventListener('click', async () => {
+    const [tab] = await chrome.tabs.query({ active: true, currentWindow: true });
+    chrome.scripting.executeScript({
+      target: { tabId: tab.id },
+      function: applyForJob,
+    });
+  });
+  
+  async function scanJobDescription() {
+    const jobDescription = document.body.innerText; // Simplified for demonstration
+    const response = await fetch('http://localhost:5000/scan', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ jobDescription })
+    });
+    const data = await response.json();
+    console.log('AI Processed Data:', data);
+  }
+  
+  async function applyForJob() {
+    const formElements = document.querySelectorAll('input, textarea, select');
+    formElements.forEach(element => {
+      element.value = 'Auto-filled by AI';
+    });
+    const submitButton = document.querySelector('button[type="submit"], input[type="submit"]');
+    if (submitButton) submitButton.click();
+  }
+  
